@@ -3,5 +3,8 @@
     "jimp": "^1.6.1",
     "jsdom": "^29.1.1",
     "ws": "^8.20.1"
+  },
+  "scripts": {
+    "start": "node server.js"
   }
 }
