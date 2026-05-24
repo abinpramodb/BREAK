@@ -1,2 +1,6 @@
 node_modules/
 .DS_Store
+
+users.json
+test_join.js
+*.py

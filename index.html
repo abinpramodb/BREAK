@@ -47,6 +47,83 @@
       -webkit-user-select: none;
     }
 
+    
+    /* ===== FRIENDS PANEL & INVITE MODAL ===== */
+    #friends-panel {
+      position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
+      background: rgba(10,12,24,0.95); backdrop-filter: blur(10px);
+      border-left: 1px solid rgba(255,255,255,0.1); z-index: 1500;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex; flex-direction: column; padding: 20px;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+    }
+    #friends-panel.open { right: 0; }
+    .fp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .fp-title { font-family: 'Cinzel', serif; font-size: 1.3rem; color: var(--gold); }
+    .fp-close { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; opacity: 0.7; }
+    .fp-close:hover { opacity: 1; }
+    .fp-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+    .fp-tab { flex: 1; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-family: 'Outfit', sans-serif; cursor: pointer; transition: all 0.2s; }
+    .fp-tab.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
+    .fp-list { flex: 1; overflow-y: auto; display: none; flex-direction: column; gap: 10px; }
+    .fp-list.active { display: flex; }
+    .fp-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .fp-item-header { display: flex; align-items: center; justify-content: space-between; }
+    .fp-name { font-family: 'Outfit', sans-serif; font-size: 1rem; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .fp-uname { font-family: 'Inter', sans-serif; font-size: 0.75rem; color: var(--text-dim); }
+    .fp-status { width: 8px; height: 8px; border-radius: 50%; background: #666; }
+    .fp-status.online { background: #10B981; box-shadow: 0 0 8px rgba(16,185,129,0.5); }
+    .fp-actions { display: flex; gap: 6px; }
+    .fp-btn { flex: 1; padding: 6px; border: none; border-radius: 4px; font-family: 'Outfit', sans-serif; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.1); color: #fff; }
+    .fp-btn:hover { background: rgba(255,255,255,0.2); }
+    .fp-btn.primary { background: var(--gold); color: #000; }
+    .fp-btn.primary:hover { background: var(--gold-neon); }
+    .fp-btn.danger { background: rgba(239,68,68,0.2); color: #EF4444; }
+    .fp-btn.danger:hover { background: rgba(239,68,68,0.4); }
+    
+    .fp-add-friend { display: flex; gap: 8px; margin-top: 15px; }
+    .fp-add-input { flex: 1; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.5); color: #fff; font-family: 'Inter', sans-serif; outline: none; }
+    .fp-add-input:focus { border-color: var(--gold); }
+    
+    #invite-modal { z-index: 4000; }
+
+    /* ===== PROFILE MODALS & TOP WIDGET ===== */
+    .top-profile-btn {
+      position: fixed; top: 15px; right: 20px; z-index: 2000;
+      background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px; padding: 6px 14px; color: var(--text);
+      font-family: 'Outfit', sans-serif; font-size: 0.9rem; cursor: pointer;
+      display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;
+      backdrop-filter: blur(8px);
+    }
+    .top-profile-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
+    .profile-ico { font-size: 1.1rem; }
+    .profile-modal {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      z-index: 3000; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .profile-modal.open { opacity: 1; pointer-events: auto; }
+    .pm-box {
+      background: var(--bg-dark); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px; padding: 2rem; width: 90%; max-width: 400px;
+      text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      transform: translateY(20px); transition: transform 0.3s;
+    }
+    .profile-modal.open .pm-box { transform: translateY(0); }
+    .pm-title { font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--gold); margin-bottom: 1rem; }
+    .pm-desc { font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text-dim); margin-bottom: 1.5rem; line-height: 1.5; }
+    .pm-input-group { margin-bottom: 1rem; text-align: left; }
+    .pm-input-group label { display: block; font-family: 'Outfit', sans-serif; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+    .pm-input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.5); color: #fff; font-family: 'Inter', sans-serif; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+    .pm-input:focus { border-color: var(--gold); }
+    .pm-input:disabled { opacity: 0.5; cursor: not-allowed; }
+    .pm-btn { width: 100%; padding: 12px; border-radius: 8px; border: none; background: var(--gold); color: #000; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; margin-top: 1rem; }
+    .pm-btn:hover { background: var(--gold-neon); transform: translateY(-2px); }
+    .pm-btn.close { background: rgba(255,255,255,0.1); color: #fff; margin-top: 0.5rem; }
+    .pm-btn.close:hover { background: rgba(255,255,255,0.2); }
+
     /* ===== SPLASH ===== */
     #splash {
       position: fixed; inset: 0; z-index: 200;
@@ -1873,6 +1950,91 @@
   <div class="tb-sub" id="tb-sub">Alex is thinking...</div>
 </div>
 
+<!-- Top Profile Widget -->
+<button class="top-profile-btn" id="top-friends-btn" onclick="toggleFriendsPanel()" style="display:none; right: 140px;">
+  <span class="profile-ico">👥</span>
+  <span>Friends</span>
+</button>
+<button class="top-profile-btn" id="top-profile-btn" onclick="openProfileSettings()" style="display:none;">
+  <span class="profile-ico">👤</span>
+  <span id="top-profile-name">Player</span>
+</button>
+
+<!-- Profile Setup Modal -->
+<div id="profile-setup-modal" class="profile-modal">
+  <div class="pm-box">
+    <div class="pm-title">Login / Register</div>
+    <div class="pm-desc">Enter your Username and Password to log in, or to register a new account.</div>
+    <div class="pm-input-group">
+      <label>Nickname (Display Name)</label>
+      <input type="text" id="setup-nickname" class="pm-input" placeholder="e.g. Alex" maxlength="15">
+    </div>
+    <div class="pm-input-group">
+      <label>Unique Username</label>
+      <input type="text" id="setup-username" class="pm-input" placeholder="e.g. alex_123" maxlength="15">
+    </div>
+    <div class="pm-input-group">
+      <label>Password</label>
+      <input type="password" id="setup-password" class="pm-input" placeholder="••••••••" maxlength="30">
+    </div>
+    <button class="pm-btn" onclick="saveProfileSetup()">Save & Play</button>
+  </div>
+</div>
+
+<!-- Profile Settings Modal -->
+<div id="profile-settings-modal" class="profile-modal">
+  <div class="pm-box">
+    <div class="pm-title">Profile Settings</div>
+    <div class="pm-input-group">
+      <label>Nickname</label>
+      <input type="text" id="settings-nickname" class="pm-input" maxlength="15">
+    </div>
+    <div class="pm-input-group">
+      <label>Username (Locked)</label>
+      <input type="text" id="settings-username" class="pm-input" disabled>
+    </div>
+    <button class="pm-btn" onclick="saveProfileSettings()">Update Profile</button>
+    <button class="pm-btn close" onclick="closeProfileSettings()">Cancel</button>
+  </div>
+</div>
+
+
+<!-- Friends Panel -->
+<div id="friends-panel">
+  <div class="fp-header">
+    <div class="fp-title">Friends</div>
+    <button class="fp-close" onclick="toggleFriendsPanel()">×</button>
+  </div>
+  <div class="fp-tabs">
+    <button class="fp-tab active" id="tab-friends-btn" onclick="switchFriendsTab('friends')">My Friends</button>
+    <button class="fp-tab" id="tab-requests-btn" onclick="switchFriendsTab('requests')">Requests</button>
+  </div>
+  
+  <div class="fp-list active" id="list-friends">
+    <!-- Populated dynamically -->
+    <div style="text-align: center; color: var(--text-dim); margin-top: 20px; font-size: 0.9rem;">No friends yet. Add some!</div>
+  </div>
+  
+  <div class="fp-list" id="list-requests">
+    <!-- Populated dynamically -->
+  </div>
+  
+  <div class="fp-add-friend">
+    <input type="text" id="add-friend-input" class="fp-add-input" placeholder="@username">
+    <button class="fp-btn primary" onclick="sendFriendRequest()" style="flex: 0 0 auto; padding: 0 15px;">Add</button>
+  </div>
+</div>
+
+<!-- Invite Modal -->
+<div id="invite-modal" class="profile-modal">
+  <div class="pm-box">
+    <div class="pm-title">Game Invite!</div>
+    <div class="pm-desc" id="invite-desc">Alex (@alex) has invited you to play!</div>
+    <button class="pm-btn" id="invite-accept-btn">Accept & Join</button>
+    <button class="pm-btn close" onclick="closeInviteModal()">Decline</button>
+  </div>
+</div>
+
 <!-- Power Flash overlays -->
 <div id="pf-thief" class="power-flash"></div>
 <div id="pf-break" class="power-flash"></div>
@@ -1899,7 +2061,6 @@
       </div>
       <div style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; width: 100%;">
         <h3 style="margin-bottom: 0.8rem;">Play with Friends</h3>
-        <input type="text" id="mp-name-input" placeholder="Enter Your Name" class="mp-input">
         <div style="display: flex; gap: 10px; margin-bottom: 0.8rem;">
           <button class="ai-btn" onclick="mpCreateRoom()" style="flex: 1; padding: 0.6rem;">Create Room</button>
         </div>
@@ -2239,6 +2400,79 @@
 </div><!-- /#tut-modal -->
 
 <script>
+// ===== PROFILE LOGIC =====
+let myProfile = { nickname: '', username: '' };
+
+function loadProfile() {
+  const nn = localStorage.getItem('break_nickname');
+  const un = localStorage.getItem('break_username');
+  const pw = localStorage.getItem('break_password');
+  if (nn && un && pw) {
+    myProfile.nickname = nn;
+    myProfile.username = un;
+    myProfile.password = pw;
+    document.getElementById('top-profile-name').textContent = nn;
+    document.getElementById('top-profile-btn').style.display = 'flex';
+    document.getElementById('top-friends-btn').style.display = 'flex';
+    autoLogin();
+  } else {
+    document.getElementById('profile-setup-modal').classList.add('open');
+  }
+}
+
+function saveProfileSetup() {
+  const nn = document.getElementById('setup-nickname').value.trim();
+  const un = document.getElementById('setup-username').value.trim().replace(/[^a-zA-Z0-9_]/g, '');
+  const pw = document.getElementById('setup-password').value;
+  if (!nn) { toast('Please enter a Nickname', 'err'); return; }
+  if (!un) { toast('Please enter a Username', 'err'); return; }
+  if (!pw) { toast('Please enter a Password', 'err'); return; }
+  
+  localStorage.setItem('break_nickname', nn);
+  localStorage.setItem('break_username', un);
+  localStorage.setItem('break_password', pw);
+  myProfile.nickname = nn;
+  myProfile.username = un;
+  myProfile.password = pw;
+  
+  document.getElementById('profile-setup-modal').classList.remove('open');
+  document.getElementById('top-profile-name').textContent = nn;
+  document.getElementById('top-profile-btn').style.display = 'flex';
+  document.getElementById('top-friends-btn').style.display = 'flex';
+  toast('Profile saved successfully!', 'sys');
+  autoLogin();
+}
+
+function openProfileSettings() {
+  document.getElementById('settings-nickname').value = myProfile.nickname;
+  document.getElementById('settings-username').value = '@' + myProfile.username;
+  document.getElementById('profile-settings-modal').classList.add('open');
+}
+
+function closeProfileSettings() {
+  document.getElementById('profile-settings-modal').classList.remove('open');
+}
+
+function saveProfileSettings() {
+  const nn = document.getElementById('settings-nickname').value.trim();
+  if (!nn) { toast('Nickname cannot be empty', 'err'); return; }
+  
+  localStorage.setItem('break_nickname', nn);
+  myProfile.nickname = nn;
+  document.getElementById('top-profile-name').textContent = nn;
+  closeProfileSettings();
+  toast('Profile updated!', 'sys');
+  
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify({
+      type: 'update_profile',
+      nickname: nn
+    }));
+  }
+}
+
+window.addEventListener('load', loadProfile);
+
 // ========== TUTORIAL ==========
 const TUT_SLIDES = [
   { ico:'🎮', title:'Welcome to Take a Break',       num:'Overview — Step 1 of 6' },
@@ -2465,6 +2699,108 @@ const PDEFS = [
 let G = {};
 let PSS = null;
 
+
+let pendingInviteCode = null;
+
+function autoLogin() {
+  initSocket();
+}
+
+function handleFriendsUpdate(data) {
+  const fList = document.getElementById('list-friends');
+  const rList = document.getElementById('list-requests');
+  
+  // Render Friends
+  if (data.friends.length === 0) {
+    fList.innerHTML = '<div style="text-align: center; color: var(--text-dim); margin-top: 20px; font-size: 0.9rem;">No friends yet. Add some!</div>';
+  } else {
+    fList.innerHTML = data.friends.map(f => `
+      <div class="fp-item">
+        <div class="fp-item-header">
+          <div class="fp-name">
+            <div class="fp-status ${f.online ? 'online' : ''}"></div>
+            ${f.nickname}
+          </div>
+          <div class="fp-uname">@${f.username}</div>
+        </div>
+        <div class="fp-actions">
+          ${f.online && document.getElementById('lobbymod').classList.contains('open') ? 
+            `<button class="fp-btn primary" onclick="inviteFriend('${f.username}')">Invite</button>` : ''}
+          <button class="fp-btn danger" onclick="removeFriend('${f.username}')">Remove</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  // Render Requests
+  if (data.requests.length === 0) {
+    rList.innerHTML = '<div style="text-align: center; color: var(--text-dim); margin-top: 20px; font-size: 0.9rem;">No pending requests.</div>';
+  } else {
+    rList.innerHTML = data.requests.map(r => `
+      <div class="fp-item">
+        <div class="fp-item-header">
+          <div class="fp-name">${r.nickname}</div>
+          <div class="fp-uname">@${r.username}</div>
+        </div>
+        <div class="fp-actions">
+          <button class="fp-btn primary" onclick="acceptFriend('${r.username}')">Accept</button>
+          <button class="fp-btn" onclick="removeFriend('${r.username}')">Decline</button>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+function toggleFriendsPanel() { document.getElementById('friends-panel').classList.toggle('open'); }
+function switchFriendsTab(tab) {
+  document.getElementById('tab-friends-btn').classList.toggle('active', tab === 'friends');
+  document.getElementById('tab-requests-btn').classList.toggle('active', tab === 'requests');
+  document.getElementById('list-friends').classList.toggle('active', tab === 'friends');
+  document.getElementById('list-requests').classList.toggle('active', tab === 'requests');
+}
+
+function sendFriendRequest() {
+  const inp = document.getElementById('add-friend-input');
+  const target = inp.value.trim().replace('@', '');
+  if (!target) return;
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify({ type: 'add_friend', targetUsername: target }));
+    inp.value = '';
+  }
+}
+
+function acceptFriend(uname) {
+  if (socket && socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: 'accept_friend', targetUsername: uname }));
+}
+function removeFriend(uname) {
+  if (socket && socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: 'remove_friend', targetUsername: uname }));
+}
+function inviteFriend(uname) {
+  if (socket && socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: 'invite_friend', targetUsername: uname }));
+}
+
+function showInviteModal(data) {
+  document.getElementById('invite-desc').textContent = `${data.fromNickname} (@${data.fromUsername}) has invited you to play!`;
+  pendingInviteCode = data.code;
+  document.getElementById('invite-accept-btn').onclick = () => {
+    closeInviteModal();
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({
+        type: 'join_lobby',
+        nickname: myProfile.nickname,
+        username: myProfile.username,
+        password: myProfile.password,
+        code: pendingInviteCode
+      }));
+    }
+  };
+  document.getElementById('invite-modal').classList.add('open');
+}
+
+function closeInviteModal() {
+  document.getElementById('invite-modal').classList.remove('open');
+}
+
 // ========== MULTIPLAYER NETWORKING ==========
 let socket = null;
 
@@ -2475,15 +2811,33 @@ function getSocketUrl() {
   return (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host;
 }
 
+let socketQueue = [];
 function initSocket(onConnectCallback) {
   if (socket && socket.readyState === WebSocket.OPEN) {
     if (onConnectCallback) onConnectCallback();
     return;
   }
+  
+  if (onConnectCallback) socketQueue.push(onConnectCallback);
+  
+  if (socket && socket.readyState === WebSocket.CONNECTING) {
+    return;
+  }
+  
   socket = new WebSocket(getSocketUrl());
   socket.onopen = () => {
     console.log('Connected to server');
-    if (onConnectCallback) onConnectCallback();
+    if (myProfile.username && myProfile.password) {
+      socket.send(JSON.stringify({
+        type: 'login',
+        nickname: myProfile.nickname,
+        username: myProfile.username,
+        password: myProfile.password
+      }));
+    }
+    const queueToRun = socketQueue;
+    socketQueue = [];
+    queueToRun.forEach(cb => cb());
   };
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
@@ -2499,7 +2853,13 @@ function initSocket(onConnectCallback) {
 }
 
 function handleSocketMessage(data) {
-  if (data.type === 'lobby_update') {
+  if (data.type === 'login_success') {
+    console.log('Logged in as', data.username);
+  } else if (data.type === 'friends_update') {
+    handleFriendsUpdate(data);
+  } else if (data.type === 'game_invite') {
+    showInviteModal(data);
+  } else if (data.type === 'lobby_update') {
     document.getElementById('lobbymod').classList.add('open');
     document.getElementById('lobby-code-val').textContent = data.code;
     
@@ -2592,26 +2952,32 @@ function setupMultiplayerLayout() {
 }
 
 function mpCreateRoom() {
-  const nameInput = document.getElementById('mp-name-input');
-  const name = nameInput.value.trim();
-  if (!name) {
-    toast('Please enter your name!', 'err');
+  const nickname = myProfile.nickname;
+  const username = myProfile.username;
+  const password = myProfile.password;
+
+  if (!nickname || !username || !password) {
+    loadProfile();
     return;
   }
   initSocket(() => {
     socket.send(JSON.stringify({
       type: 'join_lobby',
-      name: name,
+      nickname: nickname,
+      username: username,
+      password: password,
       code: ''
     }));
   });
 }
 
 function mpJoinRoom() {
-  const nameInput = document.getElementById('mp-name-input');
-  const name = nameInput.value.trim();
-  if (!name) {
-    toast('Please enter your name!', 'err');
+  const nickname = myProfile.nickname;
+  const username = myProfile.username;
+  const password = myProfile.password;
+
+  if (!nickname || !username || !password) {
+    loadProfile();
     return;
   }
   const codeInput = document.getElementById('mp-code-input');
@@ -2623,7 +2989,9 @@ function mpJoinRoom() {
   initSocket(() => {
     socket.send(JSON.stringify({
       type: 'join_lobby',
-      name: name,
+      nickname: nickname,
+      username: username,
+      password: password,
       code: code
     }));
   });

@@ -2,6 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const WebSocket = require('ws');
+const crypto = require('crypto');
 
 // ========== CONSTANTS & RULES ==========
 const FAM = {
@@ -84,6 +85,36 @@ const server = http.createServer((req, res) => {
 
 // ========== MULTIPLAYER STATE ==========
 const rooms = new Map(); // roomCode -> room object
+const connectedUsernames = new Set(); // Globally track connected usernames
+const connectedSockets = new Map(); // username -> ws
+
+// ========== USER DATABASE ==========
+const USERS_FILE = path.join(__dirname, 'users.json');
+let usersDB = {};
+
+function loadUsers() {
+  try {
+    if (fs.existsSync(USERS_FILE)) {
+      usersDB = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+    }
+  } catch (err) {
+    console.error('Error loading users.json:', err);
+  }
+}
+
+function saveUsers() {
+  try {
+    fs.writeFileSync(USERS_FILE, JSON.stringify(usersDB, null, 2));
+  } catch (err) {
+    console.error('Error saving users.json:', err);
+  }
+}
+
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
+
+loadUsers();
 
 function generateRoomCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -95,6 +126,40 @@ function generateRoomCode() {
     }
   } while (rooms.has(code));
   return code;
+}
+
+
+function getPublicProfile(uname) {
+  if (!usersDB[uname]) return null;
+  return {
+    username: uname,
+    nickname: usersDB[uname].nickname,
+    online: connectedSockets.has(uname)
+  };
+}
+
+function sendFriendsUpdate(uname) {
+  const ws = connectedSockets.get(uname);
+  if (!ws) return;
+  const user = usersDB[uname];
+  if (!user) return;
+  
+  if (!user.friends) user.friends = [];
+  if (!user.friendRequests) user.friendRequests = [];
+  
+  ws.send(JSON.stringify({
+    type: 'friends_update',
+    friends: user.friends.map(getPublicProfile),
+    requests: user.friendRequests.map(getPublicProfile)
+  }));
+}
+
+function broadcastFriendsStatus(uname) {
+  const user = usersDB[uname];
+  if (!user || !user.friends) return;
+  user.friends.forEach(friendUname => {
+    sendFriendsUpdate(friendUname);
+  });
 }
 
 // ========== WEBSOCKET SERVER ==========
@@ -114,6 +179,15 @@ wss.on('connection', (ws) => {
   });
 
   ws.on('close', () => {
+    let gUname = null;
+    for (const [uname, s] of connectedSockets.entries()) {
+      if (s === ws) { gUname = uname; break; }
+    }
+    if (gUname) {
+      connectedUsernames.delete(gUname);
+      connectedSockets.delete(gUname);
+      broadcastFriendsStatus(gUname);
+    }
     if (roomObj && playerObj) {
       console.log(`Player ${playerObj.name} disconnected from room ${roomObj.code}`);
       const idx = roomObj.players.indexOf(playerObj);
@@ -147,8 +221,136 @@ wss.on('connection', (ws) => {
 
   function handleMessage(ws, data) {
     switch (data.type) {
+      case 'login': {
+        let nickname = (data.nickname || 'Anonymous').trim().substring(0, 10);
+        let rawUsername = (data.username || '').trim().replace(/[^a-zA-Z0-9_]/g, '').substring(0, 15);
+        let password = data.password || '';
+        if (!rawUsername) rawUsername = 'user' + Math.floor(Math.random()*1000);
+        const username = rawUsername.toLowerCase();
+        
+        if (usersDB[username]) {
+          if (usersDB[username].password !== hashPassword(password)) {
+            ws.send(JSON.stringify({ type: 'error', message: `Incorrect password for @${username}.` }));
+            return;
+          }
+          nickname = usersDB[username].nickname;
+        } else {
+          if (!password) {
+            ws.send(JSON.stringify({ type: 'error', message: `Password is required to register a new username.` }));
+            return;
+          }
+          usersDB[username] = {
+            username: username, nickname: nickname, password: hashPassword(password),
+            friends: [], friendRequests: []
+          };
+          saveUsers();
+        }
+        
+        if (connectedSockets.has(username) && connectedSockets.get(username) !== ws) {
+          connectedSockets.get(username).close();
+        }
+
+        connectedUsernames.add(username);
+        connectedSockets.set(username, ws);
+        
+        ws.authUsername = username;
+        ws.authNickname = nickname;
+        
+        ws.send(JSON.stringify({ type: 'login_success', username, nickname }));
+        sendFriendsUpdate(username);
+        broadcastFriendsStatus(username);
+        break;
+      }
+      
+      case 'add_friend': {
+        if (!ws.authUsername) return;
+        const target = (data.targetUsername || '').trim().toLowerCase();
+        if (!usersDB[target]) {
+          ws.send(JSON.stringify({ type: 'error', message: 'User not found.' }));
+          return;
+        }
+        if (target === ws.authUsername) {
+          ws.send(JSON.stringify({ type: 'error', message: 'You cannot add yourself.' }));
+          return;
+        }
+        const me = usersDB[ws.authUsername];
+        const them = usersDB[target];
+        if (me.friends && me.friends.includes(target)) {
+          ws.send(JSON.stringify({ type: 'error', message: 'Already friends.' }));
+          return;
+        }
+        if (!them.friendRequests) them.friendRequests = [];
+        if (!them.friendRequests.includes(ws.authUsername)) {
+          them.friendRequests.push(ws.authUsername);
+          saveUsers();
+        }
+        sendFriendsUpdate(target);
+        ws.send(JSON.stringify({ type: 'toast', message: 'Friend request sent!' }));
+        break;
+      }
+      
+      case 'accept_friend': {
+        if (!ws.authUsername) return;
+        const target = (data.targetUsername || '').trim().toLowerCase();
+        const me = usersDB[ws.authUsername];
+        const them = usersDB[target];
+        if (!me || !them) return;
+        
+        if (!me.friends) me.friends = [];
+        if (!them.friends) them.friends = [];
+        
+        if (me.friendRequests && me.friendRequests.includes(target)) {
+          me.friendRequests = me.friendRequests.filter(u => u !== target);
+          if (!me.friends.includes(target)) me.friends.push(target);
+          if (!them.friends.includes(ws.authUsername)) them.friends.push(ws.authUsername);
+          saveUsers();
+          sendFriendsUpdate(ws.authUsername);
+          sendFriendsUpdate(target);
+        }
+        break;
+      }
+
+      case 'remove_friend': {
+        if (!ws.authUsername) return;
+        const target = (data.targetUsername || '').trim().toLowerCase();
+        const me = usersDB[ws.authUsername];
+        const them = usersDB[target];
+        if (!me || !them) return;
+        
+        if (me.friends) me.friends = me.friends.filter(u => u !== target);
+        if (them.friends) them.friends = them.friends.filter(u => u !== ws.authUsername);
+        saveUsers();
+        sendFriendsUpdate(ws.authUsername);
+        sendFriendsUpdate(target);
+        break;
+      }
+      
+      case 'invite_friend': {
+        if (!ws.authUsername || !roomObj) return;
+        const target = (data.targetUsername || '').trim().toLowerCase();
+        const targetWs = connectedSockets.get(target);
+        if (targetWs) {
+          targetWs.send(JSON.stringify({
+            type: 'game_invite',
+            fromNickname: ws.authNickname,
+            fromUsername: ws.authUsername,
+            code: roomObj.code
+          }));
+          ws.send(JSON.stringify({ type: 'toast', message: `Invite sent to @${target}` }));
+        } else {
+          ws.send(JSON.stringify({ type: 'error', message: `@${target} is offline.` }));
+        }
+        break;
+      }
+
       case 'join_lobby': {
-        const name = (data.name || 'Anonymous').trim().substring(0, 10);
+        if (!ws.authUsername) {
+          ws.send(JSON.stringify({ type: 'error', message: 'Not logged in.' }));
+          return;
+        }
+        const username = ws.authUsername;
+        const nickname = ws.authNickname;
+        const name = `${nickname} (@${username})`;
         let code = (data.code || '').trim().toUpperCase();
 
         if (code) {
@@ -169,6 +371,8 @@ wss.on('connection', (ws) => {
           playerObj = {
             ws,
             name,
+            username,
+            nickname,
             isHost: false,
             hand: [],
             elim: false,
@@ -200,6 +404,8 @@ wss.on('connection', (ws) => {
           playerObj = {
             ws,
             name,
+            username,
+            nickname,
             isHost: true,
             hand: [],
             elim: false,
@@ -213,6 +419,33 @@ wss.on('connection', (ws) => {
 
         console.log(`Player ${name} joined room ${code}`);
         broadcastLobbyUpdate(roomObj);
+        break;
+      }
+
+      case 'update_profile': {
+        if (!playerObj || !data.nickname) return;
+        const newNickname = data.nickname.trim().substring(0, 10);
+        const oldName = playerObj.name;
+        playerObj.nickname = newNickname;
+        playerObj.name = `${newNickname} (@${playerObj.username})`;
+        
+        // Update database
+        if (usersDB[playerObj.username]) {
+          usersDB[playerObj.username].nickname = newNickname;
+          saveUsers();
+          ws.authNickname = newNickname;
+          sendFriendsUpdate(playerObj.username);
+          broadcastFriendsStatus(playerObj.username);
+        }
+
+        if (roomObj) {
+          addLog(roomObj, `System: ${oldName} is now known as ${playerObj.name}.`);
+          if (roomObj.started) {
+            broadcastState(roomObj);
+          } else {
+            broadcastLobbyUpdate(roomObj);
+          }
+        }
         break;
       }
 
