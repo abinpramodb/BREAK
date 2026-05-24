@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BREAK – Strategy Card Game</title>
+  <title>Take a Break – Strategy Card Game</title>
   <meta name="description" content="Play Break, the ultimate strategy card game with power cards, twists, and survival gameplay. Easy to learn, exciting to master.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -1883,7 +1883,7 @@
 <div id="splash">
   <canvas id="ptcl"></canvas>
   <div class="splash-inner">
-    <div class="splash-logo">BREAK</div>
+    <div class="splash-logo">Take a Break</div>
     <div class="splash-tag">Strategy &bull; Power &bull; Survival</div>
     <div class="splash-cards" id="splash-cards"></div>
     <div class="splash-box">
@@ -1915,7 +1915,7 @@
 <!-- ===== GAME ===== -->
 <div id="game">
   <header id="hdr">
-    <div class="hdr-logo">BREAK</div>
+    <div class="hdr-logo">Take a Break</div>
     <div id="win-banner">⚔️ WIN PENDING — <span id="wt">?</span> turn(s) remaining</div>
     <div class="hdr-sep"></div>
     <div id="turn-info">Turn: <span id="tname">—</span></div>
@@ -2052,7 +2052,7 @@
     <div class="tut-header">
       <div class="tut-step-ico" id="tut-ico">🎴</div>
       <div>
-        <div class="tut-step-title" id="tut-title">Welcome to BREAK</div>
+        <div class="tut-step-title" id="tut-title">Welcome to Take a Break</div>
         <div class="tut-step-num" id="tut-num">Step 1 of 6</div>
       </div>
       <button class="tut-close" onclick="closeTutorial()">✕</button>
@@ -2064,7 +2064,7 @@
       <!-- SLIDE 1: Overview -->
       <div class="tut-slide active" id="tslide-0">
         <div class="tut-text">
-          <strong>BREAK</strong> is a strategy card game of skill, timing, and disruption.
+          <strong>Take a Break</strong> is a strategy card game of skill, timing, and disruption.
           You must <strong>collect all 4 cards of one family sequence</strong> and
           defend your winning position for one full round — while opponents try to <em>break</em> you.
         </div>
@@ -2241,7 +2241,7 @@
 <script>
 // ========== TUTORIAL ==========
 const TUT_SLIDES = [
-  { ico:'🎮', title:'Welcome to BREAK',       num:'Overview — Step 1 of 6' },
+  { ico:'🎮', title:'Welcome to Take a Break',       num:'Overview — Step 1 of 6' },
   { ico:'🃏', title:'Character Card Sequences',num:'Cards — Step 2 of 6' },
   { ico:'🔄', title:'Your Turn — How to Play', num:'Turn Structure — Step 3 of 6' },
   { ico:'⚡', title:'Power Cards',             num:'Special Actions — Step 4 of 6' },
@@ -2288,8 +2288,8 @@ function renderTutPage() {
 
 // ========== PLAYABLE TUTORIAL MODE ==========
 const TSTEPS = [
-  { id:'intro',        ico:'🎓', msg:'<strong>Welcome to BREAK!</strong> This guided tutorial will teach you the true hand-based rules in about 2 minutes.', target:null, btn:"Let's Go! →" },
-  { id:'hand-info',    ico:'🃏', msg:'In BREAK, sequences are built and held <strong>entirely in your hand</strong>. There is no board! You start with 4 cards.', target:'#pos-bottom', btn:'Got it! →' },
+  { id:'intro',        ico:'🎓', msg:'<strong>Welcome to Take a Break!</strong> This guided tutorial will teach you the true hand-based rules in about 2 minutes.', target:null, btn:"Let's Go! →" },
+  { id:'hand-info',    ico:'🃏', msg:'In Take a Break, sequences are built and held <strong>entirely in your hand</strong>. There is no board! You start with 4 cards.', target:'#pos-bottom', btn:'Got it! →' },
   { id:'tut-draw',     ico:'🃏', msg:'Click the <strong>Deck Pile</strong> to draw a card and start your turn.', target:'#deck-pile', btn:null },
   { id:'power-intro',  ico:'⚡', msg:'You drew a <strong>Mayor</strong> card! Now you have 5 cards. Let\'s play a Power Card. Click the <strong>Thief card</strong> to select it.', target:'#tcard-thief', btn:null },
   { id:'activate',     ico:'💥', msg:'Thief is selected! Click <strong>"Activate Power"</strong> to play it.', target:'#btn-power', btn:null },
@@ -2297,7 +2297,7 @@ const TSTEPS = [
   { id:'stole-info',   ico:'🎒', msg:'Jackpot! You stole the <strong style="color:#FFD700">👑 Princess</strong> card! This completes your Royal Dynasty sequence in hand!', target:null, btn:'Awesome! →' },
   { id:'reveal-intro', ico:'⭐', msg:'You have 4 Royal cards! Click <strong>"Reveal Sequence"</strong> to enter Win Pending. This will discard your extra card (Mayor) and show your sequence to everyone.', target:'#btn-reveal', btn:null },
   { id:'ai-turn',      ico:'🤖', msg:"It's Alex's turn to try to stop you! Watch what they do...", target:null, btn:null },
-  { id:'done',         ico:'🏆', msg:'🎉 <strong>YOU WIN!</strong> Alex couldn\'t stop you. You have mastered BREAK! Now try a real game!', target:null, btn:'Play Real Game! 🎮' }
+  { id:'done',         ico:'🏆', msg:'🎉 <strong>YOU WIN!</strong> Alex couldn\'t stop you. You have mastered Take a Break! Now try a real game!', target:null, btn:'Play Real Game! 🎮' }
 ];
 
 let PTUT = { active:false, step:0 };
@@ -2441,7 +2441,7 @@ function skipTutorial() {
 }
 
 // ==============================================
-//  BREAK — Digital Card Game Engine
+//  Take a Break — Digital Card Game Engine
 //  v1.0 | getmybreak.com adaptation
 // ==============================================
 
